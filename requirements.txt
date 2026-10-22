@@ -1,0 +1,5 @@
+# Python 3.14+ uses only the standard library; older versions need Zstandard support for Harness logs.
+# Trae extractor may need: cryptography
+
+backports.zstd; python_version < "3.14"
+cryptography
