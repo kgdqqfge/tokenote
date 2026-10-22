@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# tokenote
-a local token usage tracker
-=======
 # Tokenote v1.1
 
 本地只读的 Windows Agent 用量桌面客户端。Python 3.14 标准库 + Tkinter + SQLite（较早版本读取 Harness 压缩日志需 backports.zstd）；Trae 解密需要 cryptography。
@@ -70,4 +66,3 @@ Trae 用量由内置提取器读取，不再调用外部 Python。首次读取�
 ## 扩展
 
 在 tokenote/adapters 中实现 Adapter，输出 UsageEvent，并在 tokenote/sync.py 注册；界面显示名在 tokenote/catalog.py。来源原始计数和归一化口径会一起保留。
->>>>>>> 10a8de1 (Initial commit: Tokenote source and Windows build assets)
