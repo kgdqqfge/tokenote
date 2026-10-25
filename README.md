@@ -32,7 +32,7 @@ python app.py --sync-only
 
 已接入 Codex、Trae CN、WorkBuddy、OpenCode、Kimi Code、DeepSeek Harness、OpenClaw（含 AutoClaw）、Qoder、Grok Build、ZCode、Claude Code、Pi agents、Hermes、MiniMax Code。
 
-- **DeepSeek Harness**：读取 `~/.dsh/sessions/**/session.jsonl.zstd` 或 `session.jsonl`，支持逐请求、模型切换和缓存占比统计。路径可通过 `DSH_HOME` 或 `TOKENOTE_DEEPSEEK_HARNESS_DIR` 指定。
+- **DeepSeek Harness**：读取 `~/.dsh/sessions/**/session.jsonl.zstd` 或 `session.jsonl`，桌面端使用带版本号的文件名（如 `session.v4.jsonl.zstd`）同样支持。支持逐请求、模型切换和缓存占比统计。路径可通过 `DSH_HOME` 或 `TOKENOTE_DEEPSEEK_HARNESS_DIR` 指定。
 - **OpenClaw**：读取 `~/.openclaw/agents/*/sessions/*.jsonl` 及 `.openclaw-*` profile（例如 `.openclaw-autoclaw`）。状态目录可通过 `OPENCLAW_STATE_DIR` 或 `TOKENOTE_OPENCLAW_DIR` 指定。
 - **Qoder**：读取 `~/.qoder/projects/**/*.jsonl` 与 `~/.qoder-cn/projects/**/*.jsonl`，展示 Credits、请求报告和计费状态，并提供 Token 视图。Credits 单独统计；日志缺少 Token 计数时显示“未提供”。
 - **Grok Build**：读取 `~/.grok/sessions/<cwd>/<session-id>/updates.jsonl` 中的 `turn_completed.usage`，按模型统计 Token，保留缓存读写和 reasoning 用量。路径可通过 `GROK_HOME` 或 `TOKENOTE_GROK_DIR` 指定。

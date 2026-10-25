@@ -433,7 +433,6 @@ class TokenoteApp(tk.Tk):
         self.status_dot.create_oval(0, 5, 6, 11, fill=GREEN, outline="", tags="dot")
         self.status_dot.pack(side="left", padx=(0, 6))
         tk.Label(status, textvariable=self.status_var, fg=MUTED, bg=BG, font=(FONT_UI, 8), bd=0).pack(side="left")
-        tk.Label(status, text="作者QQ:295953710", fg="#b0b0b8", bg=BG, font=(FONT_UI, 8), bd=0).pack(side="right", padx=(18, 0))
         details = tk.Label(status, text="同步详情", fg="#6e8ab1", bg=BG, cursor="hand2", font=(FONT_UI, 8), bd=0, takefocus=True)
         details.pack(side="right", padx=(16, 0))
         details.bind("<Button-1>", lambda event: self.show_sync_details())

@@ -54,10 +54,10 @@ class DeepSeekHarnessTests(unittest.TestCase):
     def encode(rows):
         return ("\n".join(json.dumps(row, ensure_ascii=False) for row in rows) + "\n").encode("utf-8")
 
-    def write(self, rows, session_id="session-1", compressed=False):
+    def write(self, rows, session_id="session-1", compressed=False, name=None):
         directory = self.sessions / "--project--" / session_id
         directory.mkdir(parents=True, exist_ok=True)
-        path = directory / ("session.jsonl.zstd" if compressed else "session.jsonl")
+        path = directory / (name or ("session.jsonl.zstd" if compressed else "session.jsonl"))
         payload = self.encode(rows)
         path.write_bytes(zstd.compress(payload) if compressed else payload)
         return path
@@ -184,6 +184,20 @@ class DeepSeekHarnessTests(unittest.TestCase):
         self.assertIsNone(result.error)
         self.assertEqual((result.imported, self.db.summary()["requests"]), (0, 1))
         self.assertEqual(self.db.summary()["total"], 155)
+
+    @unittest.skipIf(zstd is None, "Zstandard decoder unavailable")
+    def test_desktop_versioned_transcript_names_are_discovered(self):
+        path = self.write(self.transcript([self.record("request/context", model="gpt-6.1-sol"), self.usage()]),
+                          compressed=True, name="session.v4.jsonl.zstd")
+        (path.parent / "session-notes.jsonl").write_bytes(b"{}\n")
+        self.assertEqual(self.adapter._files(), [path.resolve()])
+        result = self.adapter.sync(self.db)
+        self.assertIsNone(result.error)
+        self.assertEqual(result.availability, "ready")
+        self.assertEqual(self.db.summary()["requests"], 1)
+        row = self.db.recent(self.adapter.key)[0]
+        self.assertEqual(row["model"], "gpt-6.1-sol")
+        self.assertTrue(row["source_path"].endswith("session.v4.jsonl"))
 
     def test_zero_reports_and_packed_content_do_not_create_usage(self):
         self.write(self.transcript([

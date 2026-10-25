@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Iterator
 
@@ -71,6 +72,9 @@ class DeepSeekHarnessAdapter(Adapter):
     source_kind = "deepseek_harness_session"
     semantics = "deepseek_harness_inclusive_input_v1"
 
+    # The CLI writes session.jsonl(.zstd); the desktop app versions the name (session.v4.jsonl.zstd).
+    TRANSCRIPT_NAME = re.compile(r"session(?:\.\w+)?\.jsonl(?:\.zstd)?")
+
     def _session_roots(self) -> list[Path]:
         roots = [Path.home() / ".dsh" / "sessions"]
         if os.environ.get("DSH_HOME"):
@@ -91,8 +95,10 @@ class DeepSeekHarnessAdapter(Adapter):
         for root in self._session_roots():
             if not root.is_dir():
                 continue
-            for pattern in ("**/session.jsonl", "**/session.jsonl.zstd"):
+            for pattern in ("**/session*.jsonl", "**/session*.jsonl.zstd"):
                 for path in root.glob(pattern):
+                    if not self.TRANSCRIPT_NAME.fullmatch(path.name):
+                        continue
                     path = path.resolve()
                     logical = self._logical_path(path)
                     previous = files.get(logical)
