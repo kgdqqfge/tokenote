@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 
 APP_NAME = "Tokenote"
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 HOME = Path.home()
