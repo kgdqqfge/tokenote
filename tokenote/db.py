@@ -13,7 +13,7 @@ from .utils import display_model_id
 EXCLUSIVE_INPUT_SQL = (
     "input_token_semantics IN ('provider_input_plus_cache_buckets','session_cumulative_fallback',"
     "'anthropic_exclusive_cache','pi_exclusive_cache','hermes_exclusive_cache_aggregate',"
-    "'minimax_exclusive_cache','zcode_exclusive_cache')"
+    "'minimax_exclusive_cache','zcode_exclusive_cache','antigravity_exclusive_cache_v1')"
 )
 FRESH_INPUT_SQL = (
     f"CASE WHEN {EXCLUSIVE_INPUT_SQL} THEN input_tokens "

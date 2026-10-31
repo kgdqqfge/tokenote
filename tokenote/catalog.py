@@ -7,4 +7,5 @@ APPLICATIONS = {
     "openclaw": "OpenClaw",
     "qoder": "Qoder",
     "grok": "Grok Build",
+    "antigravity": "Antigravity",
 }

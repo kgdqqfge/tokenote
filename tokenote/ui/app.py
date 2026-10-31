@@ -704,7 +704,8 @@ class TokenoteApp(tk.Tk):
     @staticmethod
     def _fresh_input(row) -> int:
         exclusive = {"provider_input_plus_cache_buckets", "session_cumulative_fallback", "anthropic_exclusive_cache",
-                     "pi_exclusive_cache", "hermes_exclusive_cache_aggregate", "minimax_exclusive_cache", "zcode_exclusive_cache"}
+                     "pi_exclusive_cache", "hermes_exclusive_cache_aggregate", "minimax_exclusive_cache",
+                     "zcode_exclusive_cache", "antigravity_exclusive_cache_v1"}
         if row["input_token_semantics"] in exclusive:
             return int(row["input_tokens"])
         return max(0, int(row["input_tokens"]) - int(row["cache_read_tokens"]) - int(row["cache_creation_tokens"]))

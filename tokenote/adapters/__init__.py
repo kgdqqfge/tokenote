@@ -8,5 +8,6 @@ from .openclaw import OpenClawAdapter
 from .qoder import QoderAdapter
 from .grok import GrokAdapter
 from .cursor import CursorAdapter
+from .antigravity import AntigravityAdapter
 
-__all__ = ["CodexAdapter", "TraeAdapter", "WorkBuddyAdapter", "OpenCodeAdapter", "KimiAdapter", "DeepSeekHarnessAdapter", "OpenClawAdapter", "QoderAdapter", "GrokAdapter", "CursorAdapter"]
+__all__ = ["CodexAdapter", "TraeAdapter", "WorkBuddyAdapter", "OpenCodeAdapter", "KimiAdapter", "DeepSeekHarnessAdapter", "OpenClawAdapter", "QoderAdapter", "GrokAdapter", "CursorAdapter", "AntigravityAdapter"]

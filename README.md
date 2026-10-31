@@ -30,7 +30,9 @@ python app.py --sync-only
 
 ## 数据源
 
-已接入 Codex、Trae CN、WorkBuddy、OpenCode、Kimi Code、DeepSeek Harness、OpenClaw（含 AutoClaw）、Qoder、Grok Build、ZCode、Claude Code、Pi agents、Hermes、MiniMax Code。
+已接入 Codex、Trae CN、WorkBuddy、OpenCode、Kimi Code、DeepSeek Harness、OpenClaw（含 AutoClaw）、Qoder、Grok Build、ZCode、Claude Code、Pi agents、Hermes、MiniMax Code、Antigravity。
+
+- **Antigravity**：读取 `~/.gemini/antigravity/conversations/*.db`，并兼容 `antigravity-ide`、`antigravity-cli` 目录。按每次模型生成统计新增输入、缓存读取、输出和思考 Token，并从 `gen_metadata` 还原实际使用的模型。路径可通过 `TOKENOTE_ANTIGRAVITY_DIR` 或 `ANTIGRAVITY_HOME` 指定。
 
 - **DeepSeek Harness**：读取 `~/.dsh/sessions/**/session.jsonl.zstd` 或 `session.jsonl`，桌面端使用带版本号的文件名（如 `session.v4.jsonl.zstd`）同样支持。支持逐请求、模型切换和缓存占比统计。路径可通过 `DSH_HOME` 或 `TOKENOTE_DEEPSEEK_HARNESS_DIR` 指定。
 - **OpenClaw**：读取 `~/.openclaw/agents/*/sessions/*.jsonl` 及 `.openclaw-*` profile（例如 `.openclaw-autoclaw`）。状态目录可通过 `OPENCLAW_STATE_DIR` 或 `TOKENOTE_OPENCLAW_DIR` 指定。

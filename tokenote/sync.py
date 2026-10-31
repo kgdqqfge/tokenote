@@ -9,6 +9,7 @@ from .adapters.base import SyncResult
 from .adapters.openclaw import OpenClawAdapter
 from .adapters.qoder import QoderAdapter
 from .adapters.grok import GrokAdapter
+from .adapters.antigravity import AntigravityAdapter
 from .adapters.additional import ClaudeCodeAdapter, PiAdapter, HermesAdapter, MiniMaxCodeAdapter, ZCodeAdapter
 from .db import UsageDatabase
 
@@ -31,6 +32,7 @@ class SyncService:
             OpenClawAdapter(),
             QoderAdapter(),
             GrokAdapter(),
+            AntigravityAdapter(),
         ]
 
     def _save_status(self, results, started_at, current=None, finished=False):

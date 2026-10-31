@@ -19,6 +19,7 @@ Tokenote bundles these icons locally so the sidebar works without network access
 | MiniMax Code | `sources/minimax.svg` | CC Switch `src/icons/extracted/minimax.svg` |
 | Grok Build | `sources/grok.svg` | CC Switch `src/icons/extracted/grok.svg` |
 | Cursor | `sources/cursor.png` | Installed Cursor application, `resources/app/out/media/logo.png` |
+| Antigravity | `sources/antigravity.ico` | Official favicon, https://antigravity.google/favicon.ico |
 
 CC Switch assets and default colors were verified against revision `f92ff0b03964188f1cd011d9302ab8869d7a8219`; the application's own icon mapping is in `src/components/shell/AppGlyph.tsx`. Repository: https://github.com/farion1231/cc-switch/tree/f92ff0b03964188f1cd011d9302ab8869d7a8219 . Its MIT notice is retained in `LICENSE-CC-Switch.txt`.
 
