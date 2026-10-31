@@ -10,6 +10,12 @@ Windows Agent 用量桌面客户端，读取本机日志，集中查看 Token �
 - 首次运行时确认使用提示，即可进入主界面。
 - 数据保存在 `%LOCALAPPDATA%\Tokenote\tokenote.db`。
 
+## 产品界面
+
+![Tokenote 用量总览界面](docs/images/tokenote-overview.png)
+
+集中展示 Token 用量、使用趋势、热门模型和最近记录。
+
 ## 源码运行
 
 需要 Python 3.10 及以上版本，推荐 Python 3.14，使用 Windows 官方 Python 安装包附带的 Tkinter。
