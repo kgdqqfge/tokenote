@@ -124,6 +124,21 @@ class CreditDatabaseMixin:
         return [lookup.get(day.isoformat(), {"day": day.isoformat(), "total": 0, "requests": 0, "credit_reports": 0})
                 for day in (first + timedelta(days=index) for index in range(days))]
 
+    def credit_daily_totals_all(self, app_type: str | None = None):
+        where, args = self._credit_filter(app_type)
+        with self.connection() as con:
+            rows = con.execute(
+                "SELECT date(occurred_at,'unixepoch','localtime') day, COALESCE(SUM(credits),0) total, "
+                "COUNT(*) requests, COUNT(credits) credit_reports "
+                f"FROM credit_usage_event {where} GROUP BY day ORDER BY day", args).fetchall()
+        if not rows:
+            return []
+        first = date.fromisoformat(rows[0]["day"])
+        last = max(date.today(), date.fromisoformat(rows[-1]["day"]))
+        lookup = {row["day"]: dict(row) for row in rows}
+        return [lookup.get(day.isoformat(), {"day": day.isoformat(), "total": 0, "requests": 0, "credit_reports": 0})
+                for day in (first + timedelta(days=index) for index in range((last - first).days + 1))]
+
     def credit_recent(self, app_type: str | None = None, limit: int = 100):
         where, args = self._credit_filter(app_type)
         with self.connection() as con:

@@ -4,9 +4,8 @@ import math
 import queue
 import sys
 import threading
-import time
 import tkinter as tk
-from datetime import datetime
+from datetime import date, datetime, time as dt_time, timedelta
 from pathlib import Path
 from tkinter import filedialog, font as tkfont, messagebox, ttk
 from typing import Any
@@ -115,6 +114,7 @@ class TokenoteApp(tk.Tk):
         self.service = service
         self.selected_app = "all"
         self.chart_mode = "date"
+        self.chart_range_days = 7
         self.qoder_unit = "credits"
         self.model_page = 0
         self.model_page_size = 8
@@ -319,17 +319,28 @@ class TokenoteApp(tk.Tk):
         title = tk.Frame(header, bg=PANEL)
         title.pack(side="left")
         tk.Label(title, text="使用趋势", fg=TEXT, bg=PANEL, font=(FONT_UI, 12, "bold"), bd=0).pack(anchor="w")
-        self.chart_hint = tk.Label(title, text="最近 14 天 · 总 Token", fg=MUTED, bg=PANEL, font=(FONT_UI, 8), bd=0)
+        self.chart_hint = tk.Label(title, text="最近 7 天 · 总 Token", fg=MUTED, bg=PANEL, font=(FONT_UI, 8), bd=0)
         self.chart_hint.pack(anchor="w", pady=(4, 0))
-        toggles = Surface(header, fill="#eeeef2", background=PANEL, border="", radius=9,
+        controls = tk.Frame(header, bg=PANEL)
+        controls.pack(side="right", anchor="n", pady=1)
+        toggles = Surface(controls, fill="#eeeef2", background=PANEL, border="", radius=9,
                           inset=3, width=138, height=32, shadow=False)
-        toggles.pack(side="right", anchor="n", pady=1)
+        toggles.pack(anchor="e")
         self.app_chart_button = RoundedButton(toggles.inner, "按应用", self._set_group_chart_mode,
                                               width=65, height=26, radius=6, border="", background="#eeeef2", font=(FONT_UI, 8))
         self.app_chart_button.pack(side="left", fill="both", expand=True)
         self.date_chart_button = RoundedButton(toggles.inner, "按日期", lambda: self.set_chart_mode("date"),
                                                width=65, height=26, radius=6, border="", background="#eeeef2", font=(FONT_UI, 8))
         self.date_chart_button.pack(side="left", fill="both", expand=True)
+        self.range_bar = Surface(controls, fill="#eeeef2", background=PANEL, border="", radius=9,
+                                 inset=3, width=146, height=26, shadow=False)
+        self.range_buttons: dict[int | None, RoundedButton] = {}
+        for days, label, button_width in ((7, "7 天", 40), (30, "30 天", 44), (None, "所有日期", 56)):
+            button = RoundedButton(self.range_bar.inner, label, lambda value=days: self.set_chart_range(value),
+                                   width=button_width, height=20, radius=6, border="", background="#eeeef2",
+                                   font=(FONT_UI, 8))
+            button.pack(side="left", fill="both", expand=True)
+            self.range_buttons[days] = button
         self.chart = tk.Canvas(inner, bg=PANEL, highlightthickness=0, bd=0, height=220)
         self.chart.pack(fill="both", expand=True, pady=(14, 0))
         self.chart.bind("<Configure>", lambda event: self._draw_chart())
@@ -484,12 +495,40 @@ class TokenoteApp(tk.Tk):
     def _set_group_chart_mode(self) -> None:
         self.set_chart_mode("model" if self.selected_app != "all" else "app")
 
+    def set_chart_range(self, days: int | None) -> None:
+        if days == self.chart_range_days:
+            return
+        self.chart_range_days = days
+        self._update_chart_range()
+        self._draw_chart()
+
+    def _chart_range_text(self) -> str:
+        return "所有日期" if self.chart_range_days is None else f"最近 {self.chart_range_days} 天"
+
+    def _chart_since(self) -> int | None:
+        if self.chart_range_days is None:
+            return None
+        first = date.today() - timedelta(days=self.chart_range_days - 1)
+        return int(datetime.combine(first, dt_time.min).timestamp())
+
+    def _update_chart_range(self) -> None:
+        if self.chart_mode in ("model", "date"):
+            if not self.range_bar.winfo_manager():
+                self.range_bar.pack(anchor="e", pady=(6, 0))
+        else:
+            self.range_bar.pack_forget()
+        for days, button in self.range_buttons.items():
+            active = days == self.chart_range_days
+            button.set_colors(PANEL if active else "#eeeef2", TEXT if active else MUTED,
+                              PANEL if active else "#e8e8ee", "#dedee5" if active else "")
+
     def _update_chart_toggle(self) -> None:
         self.app_chart_button.configure(text="按模型" if self.selected_app != "all" else "按应用")
         for button, active in ((self.app_chart_button, self.chart_mode in ("app", "model")),
                                (self.date_chart_button, self.chart_mode == "date")):
             button.set_colors(PANEL if active else "#eeeef2", TEXT if active else MUTED,
                               PANEL if active else "#e8e8ee", "#dedee5" if active else "")
+        self._update_chart_range()
 
     def refresh_view(self) -> None:
         summary = self.db.summary(self.selected_app)
@@ -548,16 +587,20 @@ class TokenoteApp(tk.Tk):
         credits = self._credits_view()
         unit = "Credits" if credits else "Token"
         if self.chart_mode == "date":
-            rows = self.db.credit_daily_totals(self.selected_app, days=14) if credits else self.db.daily_totals(self.selected_app, days=14)
+            if self.chart_range_days is None:
+                rows = self.db.credit_daily_totals_all(self.selected_app) if credits else self.db.daily_totals_all(self.selected_app)
+            else:
+                rows = (self.db.credit_daily_totals(self.selected_app, days=self.chart_range_days) if credits
+                        else self.db.daily_totals(self.selected_app, days=self.chart_range_days))
             labels = [str(row["day"])[5:].replace("-", "/") for row in rows]
             titles = [str(row["day"]) for row in rows]
-            self.chart_hint.configure(text=f"最近 14 天 · {'Credits' if credits else '总 Token'}")
+            self.chart_hint.configure(text=f"{self._chart_range_text()} · {'Credits' if credits else '总 Token'}")
         elif self.chart_mode == "model":
-            since = int(time.time()) - 24 * 60 * 60
+            since = self._chart_since()
             rows = self.db.credit_model_totals(self.selected_app, since=since) if credits else self.db.model_totals(self.selected_app, since=since)
             labels = [display_model_id(row["model"]) for row in rows]
             titles = [display_model_id(row["model"]) for row in rows]
-            self.chart_hint.configure(text=f"最近 24 小时 · 模型 Top 8 · {'Credits' if credits else '总 Token'}")
+            self.chart_hint.configure(text=f"{self._chart_range_text()} · 模型 Top 8 · {'Credits' if credits else '总 Token'}")
         else:
             rows = self.db.credit_app_totals(self.selected_app) if credits else self.db.app_totals()
             labels = [APP_LABELS.get(row["app_type"], row["app_type"]) for row in rows]
@@ -583,10 +626,8 @@ class TokenoteApp(tk.Tk):
                 empty = "Qoder 未提供 Token 明细"
             elif credits and self._qoder_credit_summary["requests"] and not self._qoder_credit_summary["credit_reports"]:
                 empty = "当前请求未报告 Credits"
-            elif self.chart_mode == "date":
-                empty = "最近 14 天暂无用量记录"
-            elif self.chart_mode == "model":
-                empty = "最近 24 小时暂无用量记录"
+            elif self.chart_mode in ("date", "model"):
+                empty = "暂无用量记录" if self.chart_range_days is None else f"最近 {self.chart_range_days} 天暂无用量记录"
             else:
                 empty = "暂无用量记录"
             self.chart.create_text((left + right) / 2, (top + bottom) / 2 - 15, text=empty, fill=MUTED, font=(FONT_UI, 10))

@@ -234,6 +234,28 @@ class UsageDatabase(CreditDatabaseMixin):
         totals = {row["day"]: dict(row) for row in rows}
         return [totals.get((first+timedelta(days=i)).isoformat(), {"day":(first+timedelta(days=i)).isoformat(), "total":0, "requests":0}) for i in range(days)]
 
+    def daily_totals_all(self, app_type: str | None = None) -> list[dict[str, Any]]:
+        from datetime import date, timedelta
+        where = "WHERE occurred_at IS NOT NULL"
+        args: list[Any] = []
+        if app_type and app_type != "all":
+            where += " AND app_type = ?"
+            args.append(app_type)
+        with self.connection() as con:
+            rows = con.execute(
+                "SELECT date(occurred_at, 'unixepoch', 'localtime') day, "
+                "COALESCE(SUM(total_tokens),0) total, COUNT(*) requests "
+                f"FROM usage_event {where} GROUP BY day ORDER BY day", args,
+            ).fetchall()
+        if not rows:
+            return []
+        first = date.fromisoformat(rows[0]["day"])
+        last = max(date.today(), date.fromisoformat(rows[-1]["day"]))
+        totals = {row["day"]: dict(row) for row in rows}
+        return [totals.get((first + timedelta(days=index)).isoformat(),
+                           {"day": (first + timedelta(days=index)).isoformat(), "total": 0, "requests": 0})
+                for index in range((last - first).days + 1)]
+
     def recent(self, app_type: str | None = None, limit: int = 100) -> list[sqlite3.Row]:
         where = "WHERE app_type = ?" if app_type and app_type != "all" else ""
         args: tuple[Any, ...] = (app_type, limit) if where else (limit,)
